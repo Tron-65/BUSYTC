@@ -288,7 +288,7 @@ async function main() {
     }
   }
 
-  const zipPath = path.join(publicDir, 'youtube-batch-unsubscribe-extension.zip');
+  const zipPath = path.join(publicDir, 'channelsweep-for-youtube.zip');
   createZipArchive(outDir, zipPath);
 
   console.log(`Built Manifest V3 extension into ${outDir}`);

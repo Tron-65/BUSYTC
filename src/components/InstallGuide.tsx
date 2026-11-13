@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, Lock, ShieldCheck, Terminal } from 'lucide-react';
+import { Download, GitBranch, Globe, Lock, ShieldCheck, Terminal } from 'lucide-react';
 
 interface InstallGuideProps {
   onDownloadExtension: () => void;
@@ -30,9 +30,9 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
             <span>Local-Only Storage</span>
           </div>
           <p className="mt-2 text-xs text-zinc-600 leading-relaxed">
-            Settings, scanned channel lists, and batch execution progress stay
-            strictly inside <span className="font-mono">chrome.storage.local</span>{' '}
-            with zero external servers or analytics endpoints.
+            Settings, scanned channel lists, and unsubscribe history stay strictly
+            inside <span className="font-mono">chrome.storage.local</span> with zero
+            external servers or analytics endpoints.
           </p>
         </div>
 
@@ -54,10 +54,10 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-200">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">
-              Load Unpacked in Chrome or Microsoft Edge
+              Load Unpacked in Chrome, Brave, or Edge ($0)
             </h2>
             <p className="text-xs text-zinc-500 mt-1">
-              Download the compiled Manifest V3 bundle or build directly from source.
+              ChannelSweep for YouTube v1.0.0 — install directly from ZIP or build from source.
             </p>
           </div>
           <button
@@ -66,7 +66,7 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
             className="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors whitespace-nowrap shrink-0"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>Download Extension (.zip)</span>
+            <span>Download v1.0.0 ZIP</span>
           </button>
         </div>
 
@@ -77,14 +77,14 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
             </span>
             <div className="space-y-1">
               <p className="font-semibold text-zinc-900 text-sm">
-                Download and unzip the extension package
+                Download and unzip ChannelSweep for YouTube
               </p>
               <p className="text-xs text-zinc-600 leading-relaxed">
-                Click <strong>Download Extension (.zip)</strong> above and extract
-                it to a folder (for example{' '}
-                <span className="font-mono">youtube-batch-unsubscribe/</span>), or
-                run <span className="font-mono">npm run build:extension</span>{' '}
-                from the project root to generate <span className="font-mono">dist-extension/</span>.
+                Click <strong>Download v1.0.0 ZIP</strong> above and extract it to a
+                permanent folder (for example{' '}
+                <span className="font-mono">channelsweep-for-youtube/</span>), or run{' '}
+                <span className="font-mono">npm run build:extension</span> from the
+                project root to generate <span className="font-mono">dist-extension/</span>.
               </p>
             </div>
           </li>
@@ -98,11 +98,11 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
                 Open your browser extensions page
               </p>
               <p className="text-xs text-zinc-600 leading-relaxed">
-                In Google Chrome navigate to{' '}
-                <span className="font-mono text-zinc-900">chrome://extensions</span>,
-                or in Microsoft Edge navigate to{' '}
-                <span className="font-mono text-zinc-900">edge://extensions</span>.
-                Toggle <strong>Developer mode</strong> on in the corner.
+                Navigate to{' '}
+                <span className="font-mono text-zinc-900">chrome://extensions</span>{' '}
+                (Chrome / Brave / Arc / Vivaldi) or{' '}
+                <span className="font-mono text-zinc-900">edge://extensions</span>{' '}
+                (Microsoft Edge), and enable <strong>Developer mode</strong>.
               </p>
             </div>
           </li>
@@ -120,32 +120,57 @@ export const InstallGuide: React.FC<InstallGuideProps> = ({
                 <span className="font-mono">manifest.json</span>,{' '}
                 <span className="font-mono">background.js</span>,{' '}
                 <span className="font-mono">contentScript.js</span>, and{' '}
-                <span className="font-mono">popup.html</span>. Pin the extension
-                icon to your toolbar.
-              </p>
-            </div>
-          </li>
-
-          <li className="flex gap-4">
-            <span className="font-mono text-xs font-semibold text-zinc-900 bg-zinc-100 border border-zinc-200 h-6 w-6 rounded flex items-center justify-center shrink-0 mt-0.5 tabular-nums">
-              4
-            </span>
-            <div className="space-y-1">
-              <p className="font-semibold text-zinc-900 text-sm">
-                Open YouTube Subscriptions and run a batch
-              </p>
-              <p className="text-xs text-zinc-600 leading-relaxed">
-                Visit{' '}
-                <span className="font-mono text-zinc-900">
-                  https://www.youtube.com/feed/channels
-                </span>
-                , open the extension popup, click <strong>Scan Subscriptions</strong>,
-                filter or select channels, set a safe delay (recommended 1.2s–2.5s),
-                and click <strong>Unsubscribe Selected</strong>.
+                <span className="font-mono">popup.html</span>. Pin ChannelSweep to
+                your browser toolbar.
               </p>
             </div>
           </li>
         </ol>
+      </div>
+
+      {/* Free ($0) Public Store & GitHub Publishing Guide */}
+      <div className="bg-white border border-zinc-200 rounded-xl p-6 space-y-5">
+        <div className="pb-4 border-b border-zinc-200">
+          <h2 className="text-lg font-semibold text-zinc-900">
+            Free Ways to Publish &amp; Share (Without Paying $5)
+          </h2>
+          <p className="text-xs text-zinc-500 mt-1">
+            Google charges a $5 developer registration fee for the Chrome Web Store,
+            but these official distribution channels are 100% free.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border border-zinc-200 rounded-lg p-4 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900">
+              <Globe className="h-4 w-4 text-zinc-700" />
+              <span>1. Microsoft Edge Add-ons Store ($0 Fee)</span>
+            </div>
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Microsoft Partner Center does not charge any registration fee. Upload{' '}
+              <span className="font-mono">channelsweep-for-youtube-v1.0.0.zip</span>{' '}
+              directly—Edge runs the exact same Chromium Manifest V3 bundle with zero
+              code changes, and gives you a public store URL to share.
+            </p>
+          </div>
+
+          <div className="border border-zinc-200 rounded-lg p-4 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-zinc-900">
+              <GitBranch className="h-4 w-4 text-zinc-700" />
+              <span>2. GitHub Releases + Automated Workflow ($0)</span>
+            </div>
+            <p className="text-xs text-zinc-600 leading-relaxed">
+              Push the project to GitHub and run{' '}
+              <span className="font-mono text-zinc-900">
+                git tag v1.0.0 &amp;&amp; git push origin v1.0.0
+              </span>
+              . The included{' '}
+              <span className="font-mono">.github/workflows/release-extension.yml</span>{' '}
+              workflow automatically builds and attaches the release ZIP for anyone to
+              download and load unpacked.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -358,11 +358,15 @@ export const ExtensionPopup: React.FC<ExtensionPopupProps> = ({
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-200 bg-zinc-50/70 shrink-0">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-red-600 text-white text-[10px] font-bold tracking-tight shrink-0">
-              YT
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-[5px] bg-red-600 text-white shrink-0">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden="true">
+                <path d="M5 6.5v11l7-5.5-7-5.5Z" />
+                <rect x="13" y="8" width="6" height="2.4" rx="1" />
+                <rect x="13" y="13.6" width="6" height="2.4" rx="1" />
+              </svg>
             </span>
             <h2 className="text-sm font-semibold tracking-tight text-zinc-900 truncate">
-              YouTube Batch Unsubscribe
+              ChannelSweep for YouTube
             </h2>
           </div>
           <p className="mt-0.5 text-xs text-zinc-500 truncate">

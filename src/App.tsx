@@ -3,6 +3,7 @@ import { Download } from 'lucide-react';
 import { ExtensionPopup } from './components/ExtensionPopup';
 import { ExtensionSourceExplorer } from './components/ExtensionSourceExplorer';
 import { InstallGuide } from './components/InstallGuide';
+import { LandingPage } from './components/LandingPage';
 import { YouTubeSandbox } from './components/YouTubeSandbox';
 import { BatchUnsubscribeEngine } from './extension/batchEngine';
 import {
@@ -19,10 +20,10 @@ import {
 } from './extension/types';
 import { youtubeAdapter } from './extension/youtube/youtubeAdapter';
 
-type WorkspaceTab = 'simulator' | 'source' | 'install';
+type WorkspaceTab = 'overview' | 'simulator' | 'source' | 'install';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<WorkspaceTab>('simulator');
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('overview');
   const [isChannelsPage, setIsChannelsPage] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [state, setState] = useState<PersistedExtensionState>(createInitialState);
@@ -241,7 +242,7 @@ export default function App() {
     setErrorMessage(null);
 
     try {
-      const response = await fetch('./youtube-batch-unsubscribe-extension.zip', {
+      const response = await fetch('./channelsweep-for-youtube.zip', {
         cache: 'no-store',
       });
       if (!response.ok) {
@@ -267,7 +268,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'youtube-batch-unsubscribe-extension.zip';
+      link.download = 'channelsweep-for-youtube-v1.0.0.zip';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -292,11 +293,11 @@ export default function App() {
             href="#top"
             onClick={(e) => {
               e.preventDefault();
-              setActiveTab('simulator');
+              setActiveTab('overview');
             }}
             className="text-base font-bold tracking-tight text-zinc-900 whitespace-nowrap shrink-0"
           >
-            YouTube Batch Unsubscribe
+            ChannelSweep for YouTube
           </a>
 
           <nav
@@ -305,9 +306,10 @@ export default function App() {
           >
             {(
               [
-                { id: 'simulator', label: 'Interactive Simulator' },
-                { id: 'source', label: 'Extension Source' },
-                { id: 'install', label: 'Load in Chrome' },
+                { id: 'overview', label: 'Overview' },
+                { id: 'simulator', label: 'Simulator' },
+                { id: 'source', label: 'Source' },
+                { id: 'install', label: 'Free Install' },
               ] as const
             ).map((item) => (
               <button
@@ -333,7 +335,7 @@ export default function App() {
               className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-zinc-900 hover:bg-zinc-800 disabled:opacity-60 rounded-lg transition-colors whitespace-nowrap shrink-0"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>{downloadingExt ? 'Preparing ZIP...' : 'Download Extension'}</span>
+              <span>{downloadingExt ? 'Preparing ZIP...' : 'Download v1.0.0'}</span>
             </button>
           </div>
         </div>
@@ -354,28 +356,40 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-200">
-          <div className="max-w-2xl">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 text-balance">
-              {activeTab === 'simulator'
-                ? 'Sequential YouTube subscription cleanup, built on Manifest V3'
-                : activeTab === 'source'
-                  ? 'Modular Manifest V3 architecture with an isolated YouTube adapter'
-                  : 'Unpack and run locally in Chrome or Microsoft Edge'}
-            </h1>
-            <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
-              {activeTab === 'simulator'
-                ? 'Test the real React popup, YouTube DOM adapter, and sequential batch engine side-by-side against a live simulated /feed/channels page.'
-                : activeTab === 'source'
-                  ? 'Inspect the full extension source tree. All CSS selectors and Polymer fallbacks are centralized inside src/extension/youtube/.'
-                  : 'No external servers, Google OAuth, or YouTube Data API keys required. Every action runs inside your own browser session.'}
-            </p>
-          </div>
+        {activeTab !== 'overview' && (
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-zinc-200">
+            <div className="max-w-2xl">
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-900 text-balance">
+                {activeTab === 'simulator'
+                  ? 'Interactive YouTube subscription cleanup simulator'
+                  : activeTab === 'source'
+                    ? 'Modular Manifest V3 architecture with an isolated YouTube adapter'
+                    : 'Free installation and zero-cost publishing guide'}
+              </h1>
+              <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
+                {activeTab === 'simulator'
+                  ? 'Test the real ChannelSweep popup, YouTube DOM adapter, and sequential batch engine side-by-side against a live simulated /feed/channels page.'
+                  : activeTab === 'source'
+                    ? 'Inspect the full extension source tree. All CSS selectors and Polymer fallbacks are centralized inside src/extension/youtube/.'
+                    : 'Install locally in Chrome/Edge or publish for $0 via Microsoft Edge Add-ons and GitHub Releases.'}
+              </p>
+            </div>
 
-          <div className="text-xs text-zinc-500 whitespace-nowrap shrink-0">
-            Manifest V3 · React + TypeScript · Local storage only
+            <div className="text-xs text-zinc-500 whitespace-nowrap shrink-0">
+              v1.0.0 · Manifest V3 · Local storage only
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'overview' && (
+          <LandingPage
+            downloadingExt={downloadingExt}
+            onDownloadExtension={() => void handleDownloadExtension()}
+            onOpenSimulator={() => setActiveTab('simulator')}
+            onOpenSource={() => setActiveTab('source')}
+            onOpenInstall={() => setActiveTab('install')}
+          />
+        )}
 
         {activeTab === 'simulator' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -418,7 +432,7 @@ export default function App() {
         {activeTab === 'source' && <ExtensionSourceExplorer />}
 
         {activeTab === 'install' && (
-          <InstallGuide onDownloadExtension={handleDownloadExtension} />
+          <InstallGuide onDownloadExtension={() => void handleDownloadExtension()} />
         )}
       </main>
     </div>

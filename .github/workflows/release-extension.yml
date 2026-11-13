@@ -1,0 +1,54 @@
+name: Release ChannelSweep Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check TypeScript
+        run: npm run lint
+
+      - name: Build Manifest V3 extension
+        run: npm run build:extension
+
+      - name: Prepare versioned ZIP asset
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          TAG="${{ inputs.version || github.ref_name }}"
+          cp public/channelsweep-for-youtube.zip "channelsweep-for-youtube-${TAG}.zip"
+          echo "ASSET_NAME=channelsweep-for-youtube-${TAG}.zip" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=${TAG}" >> "$GITHUB_ENV"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ChannelSweep for YouTube ${{ env.RELEASE_TAG }}
+          files: ${{ env.ASSET_NAME }}
+          generate_release_notes: true

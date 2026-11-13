@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Batch Unsubscribe",
+  "name": "ChannelSweep for YouTube",
   "version": "1.0.0",
-  "description": "Search, select, and sequentially unsubscribe from YouTube channels directly on your authenticated Subscriptions page.",
+  "description": "Search, bulk-filter, and sequentially unsubscribe from YouTube channels directly on your authenticated Subscriptions page.",
   "permissions": ["storage", "tabs", "scripting"],
   "host_permissions": ["https://www.youtube.com/*"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "YouTube Batch Unsubscribe",
+    "default_title": "ChannelSweep for YouTube",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
