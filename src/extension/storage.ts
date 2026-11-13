@@ -1,8 +1,11 @@
 import {
   BatchProgress,
+  ChannelRecord,
+  ChannelResult,
   DEFAULT_SETTINGS,
   ExtensionSettings,
   PersistedExtensionState,
+  UnsubscribeHistoryEntry,
 } from './types';
 
 const STORAGE_KEY = 'ytbu_extension_state_v1';
@@ -28,10 +31,55 @@ export function createInitialState(): PersistedExtensionState {
     channels: [],
     selectedIds: [],
     results: {},
+    history: [],
     progress: createInitialProgress(),
     settings: { ...DEFAULT_SETTINGS },
     lastScannedAt: null,
   };
+}
+
+export function mergeUnsubscribeHistory(
+  existingHistory: UnsubscribeHistoryEntry[],
+  channels: ChannelRecord[],
+  results: Record<string, ChannelResult>,
+): UnsubscribeHistoryEntry[] {
+  const channelMap = new Map(channels.map((ch) => [ch.id, ch]));
+  const existingKeys = new Set(
+    existingHistory.map((item) => `${item.channelId}:${item.unsubscribedAt}`),
+  );
+  const additions: UnsubscribeHistoryEntry[] = [];
+
+  for (const res of Object.values(results)) {
+    if (res.status !== 'unsubscribed') continue;
+    const key = `${res.channelId}:${res.timestamp}`;
+    if (existingKeys.has(key)) continue;
+
+    // Also prevent duplicate recording for the same channel within the same batch
+    const alreadyRecordedForTimestamp = existingHistory.some(
+      (item) =>
+        item.channelId === res.channelId &&
+        Math.abs(item.unsubscribedAt - res.timestamp) < 2000,
+    );
+    if (alreadyRecordedForTimestamp) continue;
+
+    const ch = channelMap.get(res.channelId);
+    additions.push({
+      id: key,
+      channelId: res.channelId,
+      name: ch?.name ?? res.channelName,
+      handle: ch?.handle ?? '',
+      url: ch?.url ?? '',
+      subscriberText: ch?.subscriberText ?? '',
+      unsubscribedAt: res.timestamp,
+    });
+    existingKeys.add(key);
+  }
+
+  if (additions.length === 0) return existingHistory;
+
+  return [...additions, ...existingHistory]
+    .sort((a, b) => b.unsubscribedAt - a.unsubscribedAt)
+    .slice(0, 2000);
 }
 
 export function isChromeExtensionContext(): boolean {
@@ -53,6 +101,7 @@ export async function loadPersistedState(): Promise<PersistedExtensionState> {
         resolve({
           ...fallback,
           ...storedState,
+          history: Array.isArray(storedState?.history) ? storedState.history : [],
           progress: {
             ...fallback.progress,
             ...(storedState?.progress ?? {}),
@@ -75,6 +124,7 @@ export async function loadPersistedState(): Promise<PersistedExtensionState> {
     return {
       ...fallback,
       ...parsed,
+      history: Array.isArray(parsed.history) ? parsed.history : [],
       progress: { ...fallback.progress, ...(parsed.progress ?? {}) },
       settings: { ...DEFAULT_SETTINGS, ...(parsed.settings ?? {}) },
     };

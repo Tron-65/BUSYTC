@@ -178,10 +178,40 @@ function createInitialState() {
     channels: [],
     selectedIds: [],
     results: {},
+    history: [],
     progress: createInitialProgress(),
     settings: { ...DEFAULT_SETTINGS },
     lastScannedAt: null
   };
+}
+function mergeUnsubscribeHistory(existingHistory, channels, results) {
+  const channelMap = new Map(channels.map((ch) => [ch.id, ch]));
+  const existingKeys = new Set(
+    existingHistory.map((item) => `${item.channelId}:${item.unsubscribedAt}`)
+  );
+  const additions = [];
+  for (const res of Object.values(results)) {
+    if (res.status !== "unsubscribed") continue;
+    const key = `${res.channelId}:${res.timestamp}`;
+    if (existingKeys.has(key)) continue;
+    const alreadyRecordedForTimestamp = existingHistory.some(
+      (item) => item.channelId === res.channelId && Math.abs(item.unsubscribedAt - res.timestamp) < 2e3
+    );
+    if (alreadyRecordedForTimestamp) continue;
+    const ch = channelMap.get(res.channelId);
+    additions.push({
+      id: key,
+      channelId: res.channelId,
+      name: ch?.name ?? res.channelName,
+      handle: ch?.handle ?? "",
+      url: ch?.url ?? "",
+      subscriberText: ch?.subscriberText ?? "",
+      unsubscribedAt: res.timestamp
+    });
+    existingKeys.add(key);
+  }
+  if (additions.length === 0) return existingHistory;
+  return [...additions, ...existingHistory].sort((a, b) => b.unsubscribedAt - a.unsubscribedAt).slice(0, 2e3);
 }
 function isChromeExtensionContext() {
   return typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined";
@@ -196,6 +226,7 @@ async function loadPersistedState() {
         resolve({
           ...fallback,
           ...storedState,
+          history: Array.isArray(storedState?.history) ? storedState.history : [],
           progress: {
             ...fallback.progress,
             ...storedState?.progress ?? {}
@@ -217,6 +248,7 @@ async function loadPersistedState() {
     return {
       ...fallback,
       ...parsed,
+      history: Array.isArray(parsed.history) ? parsed.history : [],
       progress: { ...fallback.progress, ...parsed.progress ?? {} },
       settings: { ...DEFAULT_SETTINGS, ...parsed.settings ?? {} }
     };
@@ -434,10 +466,16 @@ chrome.runtime.onMessage.addListener(
                 }
                 return ch;
               });
+              const nextHistory = mergeUnsubscribeHistory(
+                latest.history,
+                updatedChannels,
+                results
+              );
               const nextState = {
                 ...latest,
                 channels: updatedChannels,
                 results: { ...latest.results, ...results },
+                history: nextHistory,
                 progress,
                 settings: message.settings
               };
@@ -484,6 +522,18 @@ chrome.runtime.onMessage.addListener(
       engine.stop();
       sendResponse({ ok: true });
       return false;
+    }
+    if (message.type === "CLEAR_HISTORY") {
+      loadPersistedState().then(async (state) => {
+        const next = {
+          ...state,
+          history: []
+        };
+        await savePersistedState(next);
+        broadcastState(next);
+        sendResponse({ ok: true, state: next });
+      });
+      return true;
     }
     return false;
   }

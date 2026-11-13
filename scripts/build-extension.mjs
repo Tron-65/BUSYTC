@@ -275,13 +275,17 @@ async function main() {
     path.join(outDir, 'manifest.json'),
   );
 
+  const srcIconsDir = path.join(extSrcDir, 'icons');
   const iconsDir = path.join(outDir, 'icons');
   fs.mkdirSync(iconsDir, { recursive: true });
   for (const size of [16, 48, 128]) {
-    fs.writeFileSync(
-      path.join(iconsDir, `icon${size}.png`),
-      createExtensionIconPng(size),
-    );
+    const customIconPath = path.join(srcIconsDir, `icon${size}.png`);
+    const destIconPath = path.join(iconsDir, `icon${size}.png`);
+    if (fs.existsSync(customIconPath)) {
+      fs.copyFileSync(customIconPath, destIconPath);
+    } else {
+      fs.writeFileSync(destIconPath, createExtensionIconPng(size));
+    }
   }
 
   const zipPath = path.join(publicDir, 'youtube-batch-unsubscribe-extension.zip');

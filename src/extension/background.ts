@@ -2,6 +2,7 @@ import { BatchUnsubscribeEngine } from './batchEngine';
 import {
   createInitialProgress,
   loadPersistedState,
+  mergeUnsubscribeHistory,
   savePersistedState,
 } from './storage';
 import {
@@ -236,10 +237,17 @@ chrome.runtime.onMessage.addListener(
                 return ch;
               });
 
+              const nextHistory = mergeUnsubscribeHistory(
+                latest.history,
+                updatedChannels,
+                results,
+              );
+
               const nextState: PersistedExtensionState = {
                 ...latest,
                 channels: updatedChannels,
                 results: { ...latest.results, ...results },
+                history: nextHistory,
                 progress,
                 settings: message.settings,
               };
@@ -290,6 +298,19 @@ chrome.runtime.onMessage.addListener(
       engine.stop();
       sendResponse({ ok: true });
       return false;
+    }
+
+    if (message.type === 'CLEAR_HISTORY') {
+      loadPersistedState().then(async (state) => {
+        const next: PersistedExtensionState = {
+          ...state,
+          history: [],
+        };
+        await savePersistedState(next);
+        broadcastState(next);
+        sendResponse({ ok: true, state: next });
+      });
+      return true;
     }
 
     return false;

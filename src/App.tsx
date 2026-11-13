@@ -9,6 +9,7 @@ import {
   createInitialProgress,
   createInitialState,
   loadPersistedState,
+  mergeUnsubscribeHistory,
   savePersistedState,
 } from './extension/storage';
 import {
@@ -172,10 +173,17 @@ export default function App() {
               return ch;
             });
 
+            const nextHistory = mergeUnsubscribeHistory(
+              prev.history,
+              updatedChannels,
+              results,
+            );
+
             const next: PersistedExtensionState = {
               ...prev,
               channels: updatedChannels,
               results: { ...prev.results, ...results },
+              history: nextHistory,
               progress,
             };
             void savePersistedState(next);
@@ -215,6 +223,13 @@ export default function App() {
         ...createInitialProgress(),
         phase: state.channels.length > 0 ? 'ready' : 'idle',
       },
+    });
+  };
+
+  const handleClearHistory = () => {
+    persist({
+      ...state,
+      history: [],
     });
   };
 
@@ -379,6 +394,7 @@ export default function App() {
                 channels={state.channels}
                 selectedIds={state.selectedIds}
                 results={state.results}
+                history={state.history}
                 progress={state.progress}
                 settings={state.settings}
                 errorMessage={errorMessage}
@@ -393,6 +409,7 @@ export default function App() {
                 onResumeBatch={handleResumeBatch}
                 onStopBatch={handleStopBatch}
                 onResetResults={handleResetResults}
+                onClearHistory={handleClearHistory}
               />
             </div>
           </div>

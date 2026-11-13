@@ -72,10 +72,21 @@ export interface YouTubeTabStatus {
   mode: 'chrome' | 'sandbox';
 }
 
+export interface UnsubscribeHistoryEntry {
+  id: string;
+  channelId: string;
+  name: string;
+  handle: string;
+  url: string;
+  subscriberText: string;
+  unsubscribedAt: number;
+}
+
 export interface PersistedExtensionState {
   channels: ChannelRecord[];
   selectedIds: string[];
   results: Record<string, ChannelResult>;
+  history: UnsubscribeHistoryEntry[];
   progress: BatchProgress;
   settings: ExtensionSettings;
   lastScannedAt: number | null;
@@ -91,6 +102,7 @@ export type ExtensionMessage =
   | { type: 'PAUSE_BATCH' }
   | { type: 'RESUME_BATCH' }
   | { type: 'STOP_BATCH' }
+  | { type: 'CLEAR_HISTORY' }
   | { type: 'GET_STATE' }
   | { type: 'UPDATE_SETTINGS'; settings: ExtensionSettings }
   | { type: 'STATE_UPDATED'; state: PersistedExtensionState };

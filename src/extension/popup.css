@@ -1,4 +1,5 @@
 @import "../index.css";
 @source "../components/ExtensionPopup.tsx";
+@source "../components/UnsubscribeHistoryChart.tsx";
 @source "./popup.tsx";
 @source "./popup.html";

@@ -155,6 +155,11 @@ function PopupApp() {
     await savePersistedState(nextState);
   };
 
+  const handleClearHistory = () => {
+    setState((prev) => ({ ...prev, history: [] }));
+    chrome.runtime.sendMessage({ type: 'CLEAR_HISTORY' } satisfies ExtensionMessage);
+  };
+
   return (
     <ExtensionPopup
       isPopupWindow
@@ -162,6 +167,7 @@ function PopupApp() {
       channels={state.channels}
       selectedIds={state.selectedIds}
       results={state.results}
+      history={state.history}
       progress={state.progress}
       settings={state.settings}
       errorMessage={errorMessage}
@@ -176,6 +182,7 @@ function PopupApp() {
       onResumeBatch={handleResumeBatch}
       onStopBatch={handleStopBatch}
       onResetResults={() => void handleResetResults()}
+      onClearHistory={handleClearHistory}
     />
   );
 }
