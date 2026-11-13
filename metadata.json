@@ -1,0 +1,6 @@
+{
+  "name": "YouTube Batch Unsubscribe",
+  "description": "Manifest V3 Chrome and Edge browser extension for searching, selecting, and sequentially unsubscribing from YouTube channels with configurable delays.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
